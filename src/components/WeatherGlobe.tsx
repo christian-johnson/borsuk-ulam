@@ -89,10 +89,8 @@ const WeatherGlobe: React.FC<WeatherGlobeProps> = ({
   return (
     <Globe
       globeImageUrl={getGlobeImage()}
-      backgroundColor="rgba(0,0,0,0)"
-      showAtmosphere={true}
-      atmosphereColor="#3a228a"
-      atmosphereAltitude={0.15}
+      backgroundColor="#232136"
+      showAtmosphere={false}
       
       // Data
       labelsData={getLabelData}

@@ -23,13 +23,13 @@ proxy_url = "https://corsproxy.io/?"
 def get_latest_gfs(max_lookback_hours=12):
     # Figure out which GFS run we want to query
     # GFS runs every 6 hours, with hourly forecasts
-    eastern = pytz.timezone("US/Eastern")
-    current_eastern_time = datetime.now(eastern)
+    utc = pytz.timezone("UTC")
+    current_utc_time = datetime.now(utc)
     # Round down to the nearest 6-hour mark
-    offset = current_eastern_time.hour % 6
-    gfs_time = current_eastern_time.replace(
-        minute=0, second=0, microsecond=0
-    ) - timedelta(hours=offset)
+    offset = current_utc_time.hour % 6
+    gfs_time = current_utc_time.replace(minute=0, second=0, microsecond=0) - timedelta(
+        hours=offset
+    )
     idx = 1 * (offset > 3)
 
     for _ in range(0, max_lookback_hours, 6):

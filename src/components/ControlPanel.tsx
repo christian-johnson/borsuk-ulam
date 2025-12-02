@@ -152,7 +152,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           className="h-1.5 w-full rounded-full opacity-90 mb-1"
           style={{
             background: displayMode === 'temp'
-              ? 'linear-gradient(to right, #0000ff, #00ffff, #ffff00, #ff0000)'
+              ? 'linear-gradient(to right, #3b4cc0, #aac7fd, #f7b79b, #b40426)'
               : 'linear-gradient(to right, #440154, #31688e, #35b779, #fde725)'
           }}
         />
@@ -172,7 +172,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             viewMode === 'single' ? 'bg-slate-500 text-white shadow-sm' : toggleBtnInactive
           }`}
         >
-          One Pair
+          Show one pair
         </button>
         <button
           onClick={() => setViewMode('all')}
@@ -180,7 +180,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             viewMode === 'all' ? 'bg-slate-500 text-white shadow-sm' : toggleBtnInactive
           }`}
         >
-          All Pairs
+          Show all pairs
         </button>
       </div>
 
