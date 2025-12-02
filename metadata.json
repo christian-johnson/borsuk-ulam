@@ -1,0 +1,5 @@
+{
+  "name": "Borsuk-Ulam Explorer",
+  "description": "An interactive 3D visualization of the Borsuk-Ulam theorem using real-time GFS weather data. Find antipodal points on Earth with identical temperature and pressure.",
+  "requestFramePermissions": []
+}
