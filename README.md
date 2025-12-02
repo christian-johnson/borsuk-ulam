@@ -1,6 +1,6 @@
 # Real-time Borsuk-Ulam visualizer
 
-![screenshot.png]
+![A screenshot of the application](screenshot.png)
 
 This repo provides the source code for a [web app](https://christian-johnson.github.io/borsuk-ulam) that visualizes the global temperature and barometric pressures, and finds points that lie exactly opposite each other on the globe and have identical temperatures and pressures. At least one pair of points are guaranteed to exist due to the [Borsuk-Ulam](https://en.wikipedia.org/wiki/Borsuk–Ulam_theorem) theorem.
 
