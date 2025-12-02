@@ -184,6 +184,11 @@ def generate_texture_base64(df, column, cmap_name):
     ax.set_axis_off()
     fig.add_axes(ax)
 
+    color_scales_dict = {
+        "tmp2m": {"vmin": -40, "vmax": 40},
+        "press": {"vmin": 0.5, "vmax": 1.05},
+    }
+
     # Simple Pcolormesh (Equirectangular projection)
     ax.imshow(
         grid.values,
@@ -191,6 +196,8 @@ def generate_texture_base64(df, column, cmap_name):
         extent=[-180, 180, -90, 90],
         cmap=cmap_name,
         aspect="auto",
+        vmin=color_scales_dict[column]["vmin"],
+        vmax=color_scales_dict[column]["vmax"],
     )
 
     plot_coastlines_on_ax(ax)

@@ -45,7 +45,7 @@ const App = () => {
 
   const handleFetchData = async () => {
     if (!pyodide) return;
-    setLoadingMsg("Processing data...");
+    setLoadingMsg("Processing data");
     
     try {
       setTimeout(async () => {

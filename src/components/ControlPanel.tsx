@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Clock, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, Calendar, ExternalLink, Github} from 'lucide-react';
 
 interface ControlPanelProps {
   displayMode: 'temp' | 'press';
@@ -114,6 +114,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         </h3>
       </div>
 
+
       {/* DATE & AGE */}
       <div className="mb-5 flex flex-col gap-1 bg-slate-700/30 p-2 rounded-md border border-slate-700/50">
         <div className="flex items-center gap-2 text-xs text-blue-200 font-mono">
@@ -157,12 +158,16 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           }}
         />
         <div className="flex justify-between text-[10px] text-slate-400 font-medium uppercase tracking-wide">
-          <span>Low</span>
-          <span>High</span>
+          {/* UPDATED: Dynamic Labels based on Display Mode */}
+          <span>
+            {displayMode === 'temp' ? '-40 °C' : '0.5 atm'}
+          </span>
+          <span>
+            {displayMode === 'temp' ? '40 °C' : '1.05 atm'}
+          </span>
         </div>
       </div>
 
-      <div className="h-px bg-slate-700 w-full mb-5"></div>
 
       {/* --- VIEW MODE TOGGLE (Identical styling to Data Layer) --- */}
       <div className={toggleContainerClass}>
@@ -209,6 +214,19 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
          <div className="text-center text-xs text-slate-500 py-2">No matching points found</div>
       ) : null}
 
+
+    {/* GitHub Link */}
+        <div className="mt-4 pt-3 border-t border-slate-700/50 flex justify-center">
+          <a 
+            href="https://github.com/christian-johnson/borsuk-ulam" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-[10px] text-slate-500 hover:text-slate-300 transition-colors"
+          >
+            <Github size={10} />
+            <span>Created by Christian Johnson</span>
+          </a>
+        </div>
     </div>
   );
 };
