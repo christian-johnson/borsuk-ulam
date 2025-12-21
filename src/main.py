@@ -20,30 +20,34 @@ global_timestamp = None
 proxy_url = "https://corsproxy.io/?"
 
 
-def get_latest_gfs(max_lookback_hours=12):
+def get_latest_gfs(max_lookback_hours=24):
     # Figure out which GFS run we want to query
     # GFS runs every 6 hours, with hourly forecasts
     utc = pytz.timezone("UTC")
     current_utc_time = datetime.now(utc)
-    # Round down to the nearest 6-hour mark
-    offset = current_utc_time.hour % 6
-    gfs_time = current_utc_time.replace(minute=0, second=0, microsecond=0) - timedelta(
-        hours=offset
-    )
-    idx = 1 * (offset > 3)
 
-    for _ in range(0, max_lookback_hours, 6):
+    # Start checking from the most recent possible 3-hour cycle
+    offset = current_utc_time.hour % 6
+    latest_possible_run = current_utc_time.replace(
+        minute=0, second=0, microsecond=0
+    ) - timedelta(hours=offset)
+
+    for i in range(0, max_lookback_hours, 6):
+        gfs_time = latest_possible_run - timedelta(hours=i)
+
         year = gfs_time.year
         month = f"{gfs_time.month:02}"
         day = f"{gfs_time.day:02}"
         hour = f"{gfs_time.hour:02}"
+        idx = offset + i
 
-        # EXACT URL construction from working example (using 179 and 359 limits)
         temp_url = f"https://nomads.ncep.noaa.gov/dods/gfs_1p00/gfs{year}{month}{day}/gfs_1p00_{hour}z.ascii?tmp2m[{idx}:1:{idx}][0:1:179][0:1:359]"
         pres_url = f"https://nomads.ncep.noaa.gov/dods/gfs_1p00/gfs{year}{month}{day}/gfs_1p00_{hour}z.ascii?pressfc[{idx}:1:{idx}][0:1:179][0:1:359]"
 
         try:
-            print(f"Fetching: {temp_url}")
+            print(
+                f"Fetching GFS run {year}-{month}-{day} {hour}z, forecast hour +{idx}"
+            )
             s = open_url(proxy_url + temp_url).read()
             p = open_url(proxy_url + pres_url).read()
 
@@ -72,12 +76,14 @@ def get_latest_gfs(max_lookback_hours=12):
             df["press"] *= 9.868 * 10 ** (-6)
 
             # Create a timestamp string for display
-            timestamp = f"{year}-{month}-{day} {hour}z"
+            # Show the valid time, not just the run time
+            valid_time = gfs_time + timedelta(hours=idx)
+            timestamp = f"Run: {year}-{month}-{day} {hour}z | Valid: {valid_time.strftime('%Y-%m-%d %H:%M')}z"
 
             return df, timestamp
         except Exception as e:
-            print(f"no GFS data for: {hour}. Error: {e}")
-            gfs_time -= timedelta(hours=6)
+            print(f"Failed fetching GFS run {hour}z forecast +{idx}: {e}")
+            # Try the previous run in the next iteration
 
     raise RuntimeError("No available GFS datasets found in the given lookback window.")
 

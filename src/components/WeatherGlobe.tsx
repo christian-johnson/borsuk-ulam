@@ -5,7 +5,6 @@ interface WeatherGlobeProps {
   data: any;
   hasData: boolean;
   displayMode: 'temp' | 'press';
-  viewMode: 'all' | 'single';
   pointIndex: number;
 }
 
@@ -13,7 +12,6 @@ const WeatherGlobe: React.FC<WeatherGlobeProps> = ({
   data, 
   hasData, 
   displayMode, 
-  viewMode, 
   pointIndex 
 }) => {
 
@@ -23,14 +21,7 @@ const WeatherGlobe: React.FC<WeatherGlobeProps> = ({
   const getLabelData = useMemo(() => {
     let sourcePoints = [];
 
-    if (viewMode === 'all') {
-      // DEDUP LOGIC:
-      // If the Python script returns BOTH points of a pair, we get overlap.
-      // We filter to only keep points in the Northern Hemisphere (lat >= 0).
-      // Then we generate the Southern antipode for them.
-      // This ensures exactly one pair per geometric match.
-      sourcePoints = (data.matches || []).filter((p: any) => p.lat >= 0);
-    } else if (viewMode === 'single' && data.matches && data.matches.length > 0) {
+    if (data.matches && data.matches.length > 0) {
       sourcePoints = [data.matches[pointIndex]];
     }
 
@@ -79,7 +70,7 @@ const WeatherGlobe: React.FC<WeatherGlobeProps> = ({
 
     return displayPoints;
 
-  }, [data, viewMode, pointIndex]);
+  }, [data, pointIndex]);
 
   // Logic: Select Texture
   const getGlobeImage = () => {

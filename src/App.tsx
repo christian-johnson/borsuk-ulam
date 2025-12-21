@@ -19,7 +19,6 @@ const App = () => {
    
   // UI Controls
   const [displayMode, setDisplayMode] = useState<'temp' | 'press'>('temp');
-  const [viewMode, setViewMode] = useState<'all' | 'single'>('all');
   const [pointIndex, setPointIndex] = useState(0); 
 
   // --- Initialization ---
@@ -92,7 +91,6 @@ const App = () => {
           data={weatherData}
           hasData={hasData}
           displayMode={displayMode}
-          viewMode={viewMode}
           pointIndex={pointIndex}
         />
 
@@ -101,14 +99,13 @@ const App = () => {
           <ControlPanel 
             displayMode={displayMode}
             setDisplayMode={setDisplayMode}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
             pointIndex={pointIndex}
             totalPoints={weatherData?.matches?.length || 0}
             onNext={handleNextPoint}
             onPrev={handlePrevPoint}
             // Pass timestamp string (assuming backend provides 'timestamp' or we fallback to now)
             dataTimestamp={weatherData?.timestamp || new Date().toISOString()}
+            currentPair={weatherData?.matches?.[pointIndex]}
           />
         )}
       </div>
