@@ -1,6 +1,6 @@
 # Real-time Borsuk-Ulam visualizer
 
-![A screenshot of the application](screenshot.png)
+<img width="1469" height="765" alt="Screenshot 2025-12-21 at 9 22 23 AM" src="https://github.com/user-attachments/assets/9ce36000-57b0-4a60-bc89-b638bc64164d" />
 
 This repo provides the source code for a [web app](https://christian-johnson.github.io/borsuk-ulam) that visualizes the global temperature and barometric pressures, and finds points that lie exactly opposite each other on the globe and have identical temperatures and pressures. At least one pair of points are guaranteed to exist due to the [Borsuk-Ulam](https://en.wikipedia.org/wiki/Borsuk–Ulam_theorem) theorem.
 
@@ -18,9 +18,9 @@ Follow the following steps:
 1. Clone this repo: `git clone git@github.com:christian-johnson/borsuk-ulam.git`
 2. Change into the directory: `cd borsuk-ulam`
 3. Install dependencies: `npm install`
-4. Build the application: `npm run build`
-5. Serve the page with the web server of your choice, e.g. `cd dist/ && python -m http.server`
-6. Visit the appropriate address in your browser (in this case, it would be `localhost:8000`).
+4. Build the application: `npm run dev`
+5. Serve the page with the web server of your choice, e.g. `npm run preview`
+6. Visit the appropriate address in your browser (in this case, it would be `localhost:4173`).
 7. Wait for the Python kernel to load, click the button, and enjoy!
 
 ## Contributing
