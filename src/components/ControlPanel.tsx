@@ -129,7 +129,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   const toggleBtnInactive = "text-slate-400 hover:text-white";
 
   return (
-    <div className={`absolute bottom-6 left-6 z-40 bg-slate-800/90 backdrop-blur-sm rounded-xl border border-slate-700 shadow-xl text-slate-100 font-sans transition-all duration-300 ${isExpanded ? 'w-80 p-5' : 'w-auto p-2'}`}>
+    <div className={`fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-50 bg-slate-800/90 backdrop-blur-sm rounded-xl border border-slate-700 shadow-xl text-slate-100 font-sans transition-all duration-300 ${isExpanded ? 'w-80 p-5' : 'w-auto p-2'}`}>
       
       {/* HEADER / TOGGLE */}
       <div className={`flex items-center ${isExpanded ? 'justify-between mb-3' : 'justify-center'}`}>
