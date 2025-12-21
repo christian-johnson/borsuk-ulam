@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      base: '/borsuk-ulam',
+      base: mode === 'production' ? '/borsuk-ulam/' : '/',
       server: {
         port: 3000,
         host: '0.0.0.0',
