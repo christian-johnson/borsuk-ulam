@@ -17,7 +17,8 @@ COASTLINE_DATA = None
 global_df = None
 global_matches = None
 global_timestamp = None
-proxy_url = "https://corsproxy.io/?"
+# proxy_url = "https://corsproxy.io/?"
+proxy_url = "https://cors-header-proxy.christian-johnson-3ef.workers.dev/?apiurl="
 
 
 def get_latest_gfs(max_lookback_hours=24):
