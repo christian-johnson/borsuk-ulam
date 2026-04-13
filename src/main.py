@@ -18,17 +18,37 @@ COASTLINE_DATA = None
 global_df = None
 global_matches = None
 global_timestamp = None
-# proxy_url = "https://corsproxy.io/?"
 proxy_url = "https://cors-header-proxy.christian-johnson-3ef.workers.dev/?apiurl="
+
+# UCAR THREDDS OPeNDAP endpoint for GFS 1-degree data.
+# NOMADS DODS was retired in 2025 (NOAA SCN 25-81).
+THREDDS_BASE = "https://thredds.ucar.edu/thredds/dodsC/grib/NCEP/GFS/Global_onedeg"
+
+
+def _parse_dods_section(text):
+    """Extract data lines, lats, and lons from a UCAR THREDDS OPeNDAP ASCII response.
+
+    The response starts with a DDS header (Dataset {...}) followed by a
+    separator line, then the data section.  Within the data section the last
+    two coordinate blocks are always lat and lon (in that order), so after
+    stripping trailing blank lines: lines[-1] = lon values, lines[-4] = lat
+    values.  Data rows start at line 1 (line 0 is the variable declaration).
+    """
+    sep = "---------------------------------------------"
+    data_section = text.split(sep + "\n", 1)[1] if sep in text else text
+    data_lines = data_section.split("\n")
+    stripped = data_section.rstrip().split("\n")
+    lons = np.array(stripped[-1].split(", "), dtype=float)
+    lats = np.array(stripped[-4].split(", "), dtype=float)
+    return data_lines, lats, lons
 
 
 def get_latest_gfs(max_lookback_hours=24):
-    # Figure out which GFS run we want to query
-    # GFS runs every 6 hours, with hourly forecasts
+    # GFS runs every 6 hours; UCAR THREDDS has 3-hourly forecast steps
+    # starting at +3h (no analysis hour in the individual files).
     utc = pytz.timezone("UTC")
     current_utc_time = datetime.now(utc)
 
-    # Start checking from the most recent possible 3-hour cycle
     offset = current_utc_time.hour % 6
     latest_possible_run = current_utc_time.replace(
         minute=0, second=0, microsecond=0
@@ -41,51 +61,60 @@ def get_latest_gfs(max_lookback_hours=24):
         month = f"{gfs_time.month:02}"
         day = f"{gfs_time.day:02}"
         hour = f"{gfs_time.hour:02}"
-        idx = offset + i
+        hour_hhmm = f"{gfs_time.hour:02}00"  # e.g. "0600", "1800"
 
-        temp_url = f"https://nomads.ncep.noaa.gov/dods/gfs_1p00/gfs{year}{month}{day}/gfs_1p00_{hour}z.ascii?tmp2m[{idx}:1:{idx}][0:1:179][0:1:359]"
-        pres_url = f"https://nomads.ncep.noaa.gov/dods/gfs_1p00/gfs{year}{month}{day}/gfs_1p00_{hour}z.ascii?pressfc[{idx}:1:{idx}][0:1:179][0:1:359]"
+        # Round elapsed time to the nearest 3-hour forecast step (min = +3h).
+        forecast_hours = (current_utc_time - gfs_time).total_seconds() / 3600
+        fh = max(3, round(forecast_hours / 3) * 3)
+        time_idx = int(fh / 3) - 1  # 0-based index into the file's time dimension
+
+        file_name = f"GFS_Global_onedeg_{year}{month}{day}_{hour_hhmm}.grib2"
+        base = f"{THREDDS_BASE}/{file_name}.ascii"
+
+        temp_url = (
+            f"{base}?Temperature_height_above_ground"
+            f"[{time_idx}:1:{time_idx}][0:1:0][0:1:180][0:1:359]"
+        )
+        pres_url = (
+            f"{base}?Pressure_surface"
+            f"[{time_idx}:1:{time_idx}][0:1:180][0:1:359]"
+        )
 
         try:
-            print(
-                f"Fetching GFS run {year}-{month}-{day} {hour}z, forecast hour +{idx}"
-            )
+            print(f"Fetching GFS run {year}-{month}-{day} {hour}z, forecast hour +{fh:.0f}")
             s = open_url(proxy_url + quote(temp_url, safe="")).read()
             p = open_url(proxy_url + quote(pres_url, safe="")).read()
 
-            lons = np.array(s.split("\n")[-2].split(", "), dtype=float)
-            lats = np.array(s.split("\n")[-4].split(", "), dtype=float)
+            s_lines, lats, lons = _parse_dods_section(s)
+            p_lines, _, _ = _parse_dods_section(p)
 
             df = pd.concat(
                 [
                     pd.DataFrame(
                         {
-                            "lat": lats[i],
+                            "lat": lats[j],
                             "lon": lons,
                             "tmp2m": np.array(
-                                s.split("\n")[i + 1].split(", ")[1:], dtype=float
+                                s_lines[j + 1].split(", ")[1:], dtype=float
                             ),
                             "press": np.array(
-                                p.split("\n")[i + 1].split(", ")[1:], dtype=float
+                                p_lines[j + 1].split(", ")[1:], dtype=float
                             ),
                         }
                     )
-                    for i in range(len(lats))
+                    for j in range(len(lats))
                 ],
                 axis=0,
             )
             df["tmp2m"] -= 273.15
             df["press"] *= 9.868 * 10 ** (-6)
 
-            # Create a timestamp string for display
-            # Show the valid time, not just the run time
-            valid_time = gfs_time + timedelta(hours=idx)
+            valid_time = gfs_time + timedelta(hours=fh)
             timestamp = f"Run: {year}-{month}-{day} {hour}z | Valid: {valid_time.strftime('%Y-%m-%d %H:%M')}z"
 
             return df, timestamp
         except Exception as e:
-            print(f"Failed fetching GFS run {hour}z forecast +{idx}: {e}")
-            # Try the previous run in the next iteration
+            print(f"Failed fetching GFS run {hour}z forecast +{fh:.0f}: {e}")
 
     raise RuntimeError("No available GFS datasets found in the given lookback window.")
 
