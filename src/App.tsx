@@ -45,20 +45,20 @@ const App = () => {
   const handleFetchData = async () => {
     if (!pyodide) return;
     setLoadingMsg("Processing data");
-    
+
+    // Brief yield so React can paint the loading state before computation starts.
+    await new Promise(resolve => setTimeout(resolve, 50));
+
     try {
-      setTimeout(async () => {
-        const resultString = await pyodide.runPythonAsync(`process_data()`);
-        const result = JSON.parse(resultString);
-        console.log(result);
-        
-        setWeatherData(result);
-        setHasData(true);
-        setPointIndex(0); 
-        setLoadingMsg("");
-      }, 1500);
-    } catch (e) {
-      console.error(e);
+      const resultString = await pyodide.runPythonAsync(`process_data()`);
+      const result = JSON.parse(resultString);
+      setWeatherData(result);
+      setHasData(true);
+      setPointIndex(0);
+      setLoadingMsg("");
+    } catch (e: any) {
+      // e.message contains the full Python traceback for PythonError.
+      console.error("process_data() failed:\n", e?.message ?? e);
       setLoadingMsg("Error processing GFS data.");
     }
   };
