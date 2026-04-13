@@ -7,6 +7,7 @@ import json
 
 from pyodide.http import open_url
 from datetime import datetime, timedelta
+from urllib.parse import quote
 import pytz
 
 
@@ -49,8 +50,8 @@ def get_latest_gfs(max_lookback_hours=24):
             print(
                 f"Fetching GFS run {year}-{month}-{day} {hour}z, forecast hour +{idx}"
             )
-            s = open_url(proxy_url + temp_url).read()
-            p = open_url(proxy_url + pres_url).read()
+            s = open_url(proxy_url + quote(temp_url, safe="")).read()
+            p = open_url(proxy_url + quote(pres_url, safe="")).read()
 
             lons = np.array(s.split("\n")[-2].split(", "), dtype=float)
             lats = np.array(s.split("\n")[-4].split(", "), dtype=float)
